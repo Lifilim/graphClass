@@ -7,9 +7,34 @@
 #include <map>
 #include <set>
 
-enum order { UNORDERED, ORDERED };
-enum weight { UNWEIGHTED, WEIGHTED };
+//enum order { UNORDERED, ORDERED };
+//enum weight { UNWEIGHTED, WEIGHTED };
 
+
+class graphBase {
+public:
+	virtual void input(std::istream& in) {}
+	virtual void input() { input(std::cin); }
+	virtual void inputAL(std::istream& in) {}
+	virtual void inputAL() { input(std::cin); }
+
+	virtual void output(std::ostream& out) {}
+	virtual void output() { output(std::cout); }
+	virtual void outputAL(std::ostream& out) {}
+	virtual void outputAL() { output(std::cout); }
+
+	virtual unsigned int size() { return 0;		}
+	virtual bool   getOrdered() { return false; }
+	virtual bool  getWeighted() { return false; }
+	/*
+	bool add_vertex(vertexT v);
+	bool add_edge(edge<vertexT, eMarkT> e);
+
+	bool erase_vertex(vertexT v);
+	bool erase_edge(edge<vertexT, eMarkT> e);
+	*/
+	virtual ~graphBase() = default;
+};
 
 
 
@@ -37,15 +62,6 @@ public:
 		if (WM & 1)	 out << mark;
 	}
 };
-template <typename eMarkT>
-bool operator < (const edgeMark<eMarkT>& a, const edgeMark<eMarkT>& b) {
-	if ((a.getWMFlag() & 2) && (b.getWMFlag() & 2))
-		if (a.getWeight() != b.getWeight())
-			return a.getWeight() < b.getWeight();
-	if ((a.getWMFlag() & 1) && (b.getWMFlag() & 1))
-		return a.getMark() < b.getMark();
-	return false;
-}
 
 template <typename vertexT, typename eMarkT>
 struct edge {
@@ -61,7 +77,7 @@ struct edge {
 
 
 template <typename vertexT, typename eMarkT>
-class graph {
+class graph : public graphBase {
 private:
 	unsigned int vertexCnt = 0;
 	unsigned int edgeCnt = 0;
@@ -75,10 +91,10 @@ private:
 				 edgeMark<eMarkT>>>> adjacencyList;
 
 public:
-	void input(std::istream& in);
-	void input() { input(std::cin); }
-	void inputAL(std::istream& in);
-	void inputAL() { input(std::cin); }
+	void input(std::istream& in) override;
+	void input() override { input(std::cin); }
+	void inputAL(std::istream& in) override;
+	void inputAL() override { input(std::cin); }
 
 	graph(std::istream& in) {
 		in >> this->isOrdered >> this->isWeighted >> this->isMarkedInput;
@@ -89,32 +105,27 @@ public:
 		this->isWeighted = isWeighted;
 		this->isMarkedInput = isMarkedInput;
 	}
-	graph(const graph& g) {
-		this->vertexCnt = g.vertexCnt;
-		this->edgeCnt = g.edgeCnt;
-		this->root = g.root;
-		this->isOrdered = g.isOrdered;
-		this->isWeighted = g.isWeighted;
-		this->adjacencyList = g.adjacencyList;
-	}
+	graph(const graph& g);
 
-	void output(std::ostream& out);
-	void output() { output(std::cout); }
-	void outputAL(std::ostream& out);
-	void outputAL() { output(std::cout); }
+	void output(std::ostream& out) override;
+	void output() override { output(std::cout); }
+	void outputAL(std::ostream& out) override;
+	void outputAL() override { output(std::cout); }
 
-	unsigned int size() { return this->vertexCnt;  }
-	bool   getOrdered() { return this->isOrdered;  }
-	bool  getWeighted() { return this->isWeighted; }
+	unsigned int size() override { return this->vertexCnt;  }
+	bool   getOrdered() override { return this->isOrdered;  }
+	bool  getWeighted() override { return this->isWeighted; }
 
 	//void scanC();
 	//void printC();
 
-	bool add_vertex(vertexT v);
-	bool add_edge(edge<vertexT, eMarkT> e);
+	virtual bool add_vertex(vertexT v);
+	virtual bool add_edge(edge<vertexT, eMarkT> e);
 
-	bool erase_vertex(vertexT v);
-	bool erase_edge(edge<vertexT, eMarkT> e);
+	virtual bool erase_vertex(vertexT v);
+	virtual bool erase_edge(edge<vertexT, eMarkT> e);
+
+	~graph() override = default;
 };
 
 
