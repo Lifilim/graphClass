@@ -12,7 +12,8 @@ int main()
     std::cout << "Hello!\n";
     graph<int, int> tr(false, false);
     int n = tr.size();
-    //tr.input();
+    tr.input();
+    tr.output();
     std::cout << "Hello World!\n";
 
     //cin >> n;
