@@ -77,6 +77,8 @@ private:
 public:
 	void input(std::istream& in);
 	void input() { input(std::cin); }
+	void inputAL(std::istream& in);
+	void inputAL() { input(std::cin); }
 
 	graph(std::istream& in) {
 		in >> this->isOrdered >> this->isWeighted >> this->isMarkedInput;
@@ -98,6 +100,8 @@ public:
 
 	void output(std::ostream& out);
 	void output() { output(std::cout); }
+	void outputAL(std::ostream& out);
+	void outputAL() { output(std::cout); }
 
 	unsigned int size() { return this->vertexCnt;  }
 	bool   getOrdered() { return this->isOrdered;  }

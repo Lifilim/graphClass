@@ -47,6 +47,37 @@ void graph<TV, TEM>::output(std::ostream& out) {
             }
     out << this->root << '\n';
 }
+template <typename TV, typename TEM>
+void graph<TV, TEM>::inputAL(std::istream& in) {
+    adjacencyList.clear();
+    in >> isWeighted >> isMarkedInput;
+    in >> this->vertexCnt;
+    this->edgeCnt = 0;
+    for (int i = 0; i < vertexCnt; ++i) {
+        TV v;
+        int cnt;
+        in >> v >> cnt;
+        this->edgeCnt += cnt;
+        for (int j = 0; j < cnt; ++j) {
+            TV u;
+            in >> u;
+            adjacencyList[v].insert({ u, edgeMark(in, isWeighted, isMarkedInput) });
+        }
+    }
+}
+template <typename TV, typename TEM>
+void graph<TV, TEM>::outputAL(std::ostream& out) {
+    out << isWeighted << ' ' << isMarkedInput << '\n';
+    out << adjacencyList.size() << '\n';
+    for (auto ali : adjacencyList) {
+        out << ali.first << ' ' << ali.second.size() << ' ';
+        for (auto alisj : ali.second) {
+            out << alisj.first << ' ';
+            alisj.second.output(out);
+            out << ' ';
+        }
+    }
+}
 
 
 template <typename TV, typename TEM>
