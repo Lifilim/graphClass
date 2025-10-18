@@ -133,6 +133,9 @@
     <ClInclude Include="graphEasier.h" />
     <ClInclude Include="graphEasier_impl.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="input.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

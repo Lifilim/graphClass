@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <fstream>
+#include <conio.h>
 
 #include "graphEasier.h"
 #include <vector>
@@ -21,101 +22,245 @@ void myChoiceAssert(bool smth) {
 	if (!smth) throw exception("Введен некорректный вариант ответа");
 }
 
-int main() {
-	setlocale(LC_ALL, "ru-RU");
+template<typename type1, typename type2>
+void getChoice(const string& message, const vector<type1>& anss, type2&ans) {
+	cout << message;
+	if (anss.size()) {
+		cout << "(";
+		for (int i = 0; i < anss.size(); ++i) {
+			if (i > 0) cout << "/";
+			cout << anss[i];
+		}
+		cout << "): ";
+	}
+	cin >> ans;
+	bool ok = anss.size() == 0;
+	for (auto ai : anss)
+		if (ai == ans) ok = true;
+	myChoiceAssert(ok);
+}
 
-	std::vector<graphBase*> copies(1);
-	auto g = copies.begin();
-	char fileOrConsole = ' ';
-	//graphBase* g;
-	while (true) {
+
+template <typename V, typename EM>
+void consoleInputSpecial() {
+	std::vector<graph<V, EM>*> copies(1);
+	int gId = 0;
+	string fileOrConsole = " ";
+	bool OK = true;
+	while (OK) {
 		try {
-			if (fileOrConsole == ' ') {
-				cout << "Хотите считать целый граф из файла или \nсоздадите его прямо из консоли? (f/c): ";
-				cin >> fileOrConsole;
-			}
-			myChoiceAssert(fileOrConsole == 'f' || fileOrConsole == 'c');
-			if (fileOrConsole == 'c') {
-				fileOrConsole = ' ';
+			myChoiceAssert(fileOrConsole == "f" || fileOrConsole == "c" || fileOrConsole == " ");
+			if (fileOrConsole == " ") 
+				getChoice<string, string>("Хотите считать целый граф из файла или \nсоздадите его прямо из консоли? ", { "f", "c" }, fileOrConsole);
+			
+			if (fileOrConsole == "c") {
+				fileOrConsole = " ";
+				cout << "\nСоставим идеальный граф для вашей задачи ^^\n";
 
-				cout << "Составим идеальный граф для вашей задачи ^^\n";
-				cout << "Должен ли он быть взвешенным? (y/n): ";
-				char isWeighted;
-				cin >> isWeighted; myChoiceAssert(isWeighted == 'y' || isWeighted == 'n');
-				cout << "Подойдет ли ориентированный?  (y/n): ";
-				char isOrdered;
-				cin >> isOrdered; myChoiceAssert(isOrdered == 'y' || isOrdered == 'n');
-				cout << "Вам нужны метки на ребрах?    (y/n): ";
-				char isMarked;
-				cin >> isMarked; myChoiceAssert(isMarked == 'y' || isMarked == 'n');
-				string markT = "int", vertexT;
-				if (isMarked == 'y') {
-					cout << "Какого типа будут метки?  (str/int): ";
-					cin >> markT;  myChoiceAssert(markT == "str" || markT == "int");
-				}
-				cout << "А какие нужны вершины?    (str/int): ";
-				cin >> vertexT; myChoiceAssert(vertexT == "str" || vertexT == "int");
-
-				if (markT == "int" && vertexT == "int") *g = new graph<int, int>(isOrdered - 'n', isWeighted - 'n', isMarked - 'n');
-				if (markT == "int" && vertexT == "str") *g = new graph<int, string>(isOrdered - 'n', isWeighted - 'n', isMarked - 'n');
-				if (markT == "str" && vertexT == "int") *g = new graph<string, int>(isOrdered - 'n', isWeighted - 'n', isMarked - 'n');
-				if (markT == "str" && vertexT == "str") *g = new graph<string, string>(isOrdered - 'n', isWeighted - 'n', isMarked - 'n');
-				
+				string isOrdered, isWeighted, isMarked;
+				getChoice<string, string>("Подойдет ли ориентированный?  ", { "y", "n" }, isOrdered);
+				getChoice<string, string>("Должен ли он быть взвешенным? ", { "y", "n" }, isWeighted);
+				getChoice<string, string>("Вам нужны метки на ребрах?    ", { "y", "n" }, isMarked);
+				copies[gId] = new graph<V, EM>(isOrdered == "y", isWeighted == "y", isMarked == "y");
 				cout << "Теперь введите количество вершин и количество ребер(дуг),\n"
-					 << "затем согласно выбранному типу введите указаное количество различных вершин, \n"
-					 << "и после этого опишите указанное количество ребер(дуг) в формате\n"
-					 << "<вершина-начало> <вершина-конец> <вес|пустота> <метка|пустота>:\n";
-				(*g)->input();
+					<< "затем согласно выбранному типу введите указаное количество различных вершин, \n"
+					<< "и после этого опишите указанное количество ребер(дуг) в формате\n"
+					<< "<вершина-начало> <вершина-конец> <вес|пустота> <метка|пустота>\n";
+				(copies[gId])->input();
 			} else {
-				fileOrConsole = ' ';
+				fileOrConsole = " ";
 				string file;
-				cout << "Укажите путь к файлу (без пробелов!): ";
-				cin >> file;
+				getChoice<string, string>("Укажите путь к файлу (без пробелов!): ", {}, file);
 				ifstream fin(file);
-				(*g)->input(fin);
+				if (copies[gId]) delete (copies[gId]);
+				copies[gId] = new graph<V, EM>(fin);
 			}
 
-			while (true) {
-				cout << "Список действий: \n(! - текущий граф будет переписан)\n";
-				cout << "0. Считать из файла (!)\n";
-				cout << "1. Ввести с консоли (!)\n";
-				cout << "2. Создать копию\n";
-				cout << "2.0) посмотреть количество копий\n";
-				cout << "2.1) переключиться назад  (циклически)\n";
-				cout << "2.2) переключиться вперед (циклически)\n";
-				cout << "3. Добавить вершину (!)\n";
-				cout << "4. Добавить ребро(дугу) (!)\n";
-				cout << "5. Удалить вершину (!)\n";
-				cout << "6. Удалить ребро(дугу) (!)\n";
-				cout << "7. Вывести список смежности в файл\n";
-				cout << "8. Считать список смежности из файла (!)\n";
-				cout << "9. Очистить граф и начать его создание с начала (!)\n";
-				cout << "!  Конец работы\n";
+			bool ok = true;
+			while (ok) {
+				try {
+					cout << "Список действий: \n(! - текущий граф будет переписан)\n";
+					cout << "0. Считать из файла (!)\n";
+					cout << "1. Ввести с консоли (!)\n";
+					cout << "2. Создать копию\n";
+					cout << "2.0) посмотреть количество копий\n";
+					cout << "2.1) переключиться назад\n"; //  (циклически)\n";
+					cout << "2.2) переключиться вперед\n"; // (циклически)\n";
+					cout << "3. Добавить вершину (!)\n";
+					cout << "4. Добавить ребро(дугу) (!)\n";
+					cout << "5. Удалить вершину (!)\n";
+					cout << "6. Удалить ребро(дугу) (!)\n";
+					cout << "7. Вывести список смежности в файл\n";
+					cout << "7.0) Вывести список смежности в консоль\n";
+					cout << "8. Считать список смежности из файла (!)\n";
+					cout << "9. Очистить граф и начать его создание с начала (!)\n";
+					cout << "t1. Вывести подвешенные вершины\n";
+					cout << "t2. Вывести изолированные вершины\n";
+					cout << "t3. Построить орграф, являющийся пересечением двух заданных\n";
+					cout << "!  Конец работы с введёными типами\n";
 
-				string num;
-				cout << "Введите номер команды: ";
-				cin >> num;
-				int command = num[0] - '0';
-				switch (command) {
-				case 0: 
-					fileOrConsole = 'f';
-					continue;
-				case 1:
-					fileOrConsole = 'c';
-					continue;
-				default:
+					string num;
+					cout << "Введите номер команды: ";
+					cin >> num;
+					switch (num[0]) {
+					case '0':
+						fileOrConsole = 'f';
+						ok = false;
+						break;
+					case '1':
+						fileOrConsole = 'c';
+						ok = false;
+						break;
+					case '2':
+						if (num.size() == 3) {
+							if (num[2] == '0')
+								cout << "Количество сохраненных в буфере копий - " << copies.size() << "\n";
+							else if (num[2] == '1') {
+								if (gId == 0) cout << "Вы в самом начале списка копий.\n";
+								else { --gId; cout << "Копия успешно применена\n"; }
+							}
+							else if (num[2] == '2') {
+								if (gId + 1 == copies.size()) cout << "Вы в самом конце списка копий.\n";
+								else { ++gId; cout << "Копия успешно применена\n"; }
+							}
+							else throw exception("Некорректная команда");
+						}
+						else {
+							graph<V, EM>* ng = new graph<V, EM>(*copies[gId]);
+							copies.push_back(ng);
+							//g = prev(copies.end());
+							cout << "Копия успешно добавлена в коней списка\n";
+						}
+						break;
+					case '3':
+						cout << "Введите имя вершины: ";
+						if ((copies[gId])->add_vertex(cin)) cout << "Успех!!!\n";
+						else cout << "Такая вершина уже есть\n";
+						break;
+					case '4':
+						cout << "Формат: <вершина-начало> <вершина-конец> <вес|пустота> <метка|пустота>\n"
+							<< "Введите ребро(дугу) : ";
+						if ((copies[gId])->add_edge(cin)) cout << "Успех!!!\n";
+						else cout << "Такое ребро уже есть\n";
+						break;
+					case '5':
+						cout << "Введите имя вершины: ";
+						if ((copies[gId])->erase_vertex(cin)) cout << "Успех!!!\n";
+						else cout << "Такой вершины нет\n";
+						break;
+					case '6':
+						cout << "Формат: <вершина-начало> <вершина-конец> <вес|пустота> <метка|пустота>\n"
+							<< "Введите ребро(дугу) : ";
+						if ((copies[gId])->erase_edge(cin)) cout << "Успех!!!\n";
+						else cout << "Такого ребра нет\n";
+						break;
+					case '7':
+						if (num.size() == 3) {
+							if (num[2] == '0')
+								(copies[gId])->outputAL();
+							else throw exception("Некорректная команда");
+						}
+						else {
+							string filele;
+							cout << "Укажите путь к файлу (без пробелов!): ";
+							cin >> filele;
+							ofstream fout(filele);
+							(copies[gId])->outputAL(fout);
+							cout << "Проверьте файл\n";
+						}
+						break;
+					case '8': {
+						string filele;
+						cout << "Укажите путь к файлу (без пробелов!): ";
+						cin >> filele;
+						ifstream fin(filele);
+						(copies[gId])->inputAL(fin);
+						cout << "Успешно считано\n";
+					}
 					break;
+					case '9':
+						fileOrConsole = ' ';
+						ok = false;
+						break;
+					case 't':
+						if (num.size() == 2) {
+							if (num[1] == '1') {
+								for (auto gi : copies[gId]->getVTotalDegN(1)) cout << gi << ' ';
+								cout << '\n';
+							} else if (num[1] == '2') {
+								for (auto gi : copies[gId]->getVTotalDegN(0)) cout << gi << ' ';
+								cout << '\n';
+							} else throw exception("Некорректная команда");
+						} else throw exception("Некорректная команда");
+						break;
+					case '!':
+						OK = ok = false;
+						
+						break;
+					default:
+						throw exception("Некорректная команда");
+						break;
+					}
+					if (OK) {
+						cout << "(нажмите любую клавишу...)";
+						_getch();
+						cout << "\n";
+					}
 				}
-
+				catch (exception e) {
+					cout << "Что-то странное...\n";
+					cout << "Сообщение ошибки: " << e.what() << '\n';
+					cout << "попробуйте заново, что ли...\n";
+				}
+				catch (...) {
+					cout << "Что-то странное... попробуйте заново, что ли...\n";
+				}
 			}
-			//cout << "Готово!\n";
-		} catch (exception e) {
+		}
+		catch (exception e) {
 			cout << "Что-то странное...\n";
 			cout << "Сообщение ошибки: " << e.what() << '\n';
 			cout << "попробуйте заново, что ли...\n";
-		} catch (...) {
+			fileOrConsole = ' ';
+		}
+		catch (...) {
 			cout << "Что-то странное... попробуйте заново, что ли...\n";
+			fileOrConsole = ' ';
 		}
 		//cout << "+--------------------------------------------------------------------+\n";
 	}
+	for (auto& ci : copies)
+		delete ci;
+}
+
+
+void consoleInput() {
+	cout << "Если бы граф был с метками на ребрах, \n"
+		 << "то какими бы они были?         (str/int): ";
+	string markT = "int", vertexT;
+	cin >> markT;  myChoiceAssert(markT == "str" || markT == "int");
+
+	cout << "Какого типа вам нужны вершины? (str/int): ";
+	cin >> vertexT; myChoiceAssert(vertexT == "str" || vertexT == "int");
+
+	if (vertexT == "int" && markT == "int") consoleInputSpecial<int, int>();		//copies[g] = new graph<int, int>(isOrdered - 'n', isWeighted - 'n', isMarked - 'n');
+	if (vertexT == "int" && markT == "str") consoleInputSpecial<int, string>();		//copies[g] = new graph<int, string>(isOrdered - 'n', isWeighted - 'n', isMarked - 'n');
+	if (vertexT == "str" && markT == "int") consoleInputSpecial<string, int>();		//copies[g] = new graph<string, int>(isOrdered - 'n', isWeighted - 'n', isMarked - 'n');
+	if (vertexT == "str" && markT == "str") consoleInputSpecial<string, string>();	//copies[g] = new graph<string, string>(isOrdered - 'n', isWeighted - 'n', isMarked - 'n');
+}
+
+
+int main() {
+	setlocale(LC_ALL, "ru-RU");
+
+	while (true) {
+		consoleInput();
+		string res;
+		getChoice<string, string>("\n\n  ===\n  Хотите начать работу сначала с другим типом? ", { "y", "n" }, res);
+		if (res == "n") {
+			cout << "\n\nЗавершение программы...\nПриходите ещё!\n\n\n";
+			break;
+		}
+	}
+	
 }
