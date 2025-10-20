@@ -22,6 +22,7 @@ graph<TV, TEM>::graph(const graph& g) {
     this->isOrdered = g.isOrdered;
     this->isWeighted = g.isWeighted;
     this->adjacencyList = g.adjacencyList;
+    this->degIn = g.degIn;
 }
 
 template <typename TV, typename TEM>
@@ -74,6 +75,7 @@ void graph<TV, TEM>::inputAL(std::istream& in) {
             TV u;
             in >> u;
             this->adjacencyList[v].insert({ u, edgeMark<TEM>(in, this->isWeighted, this->isMarkedInput) });
+            ++degIn[u];
         }
     }
     if (!this->isOrdered) this->edgeCnt = this->edgeCnt / 2;
@@ -110,10 +112,11 @@ bool graph<TV, TEM>::add_edge(edge<TV, TEM> e) {
     bool res = false;
     if (!isOrdered) {
         res = adjacencyList[e.to].insert({ e.from, e.marks }).second || res;
-        ++degIn[e.from];
+        if (res) ++degIn[e.from];
     }
-    res = adjacencyList[e.from].insert({ e.to, e.marks }).second || res;
-    ++degIn[e.to];
+    if (adjacencyList[e.from].insert({ e.to, e.marks }).second) {
+        ++degIn[e.to];
+    }
     if (res) ++edgeCnt;
     return res;
 }
@@ -122,16 +125,18 @@ template <typename TV, typename TEM>
 bool graph<TV, TEM>::erase_vertex(TV v) {
     if (!adjacencyList.count(v)) return false;
     for (auto& alvi : adjacencyList[v]) --degIn[alvi.first];
-    adjacencyList[v].clear();
-    adjacencyList.erase(v);
-    degIn.erase(v);
     for (auto &ali : adjacencyList) {
         auto it = ali.second.lower_bound({ v, edgeMark<TEM>()});
         while (it != ali.second.end() && (*it).first == v) {
-            --degIn[it->first];
+            //--degIn[it->first];
             it = ali.second.erase(it);
+            if (isOrdered) --edgeCnt;
         }
     }
+    edgeCnt -= adjacencyList[v].size();
+    adjacencyList[v].clear();
+    adjacencyList.erase(v);
+    degIn.erase(v);
     --vertexCnt;
     return true;
 }
@@ -157,6 +162,7 @@ bool graph<TV, TEM>::erase_edge(edge<TV, TEM> e) {
             ali->erase(it);
         }
     }
+    if (res) --edgeCnt;
     return res;
 }
 
@@ -233,7 +239,7 @@ void graph<TV, TEM>::getSimDif(graph<TV, TEM>& g, bool force) { //I understand,
     this->vertexCnt = this->adjacencyList.size();
     this->edgeCnt = 0;
     for (auto& ali : this->adjacencyList) 
-        this->edgeCnt += ali.second.size();
+        this->edgeCnt += (int) ali.second.size();
 }
 
 template <typename TV, typename TEM>

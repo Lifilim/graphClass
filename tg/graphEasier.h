@@ -24,9 +24,11 @@ public:
 	virtual void outputAL(std::ostream& out) {}
 	virtual void outputAL() { output(std::cout); }
 
-	virtual unsigned int size() { return 0;		}
+	//virtual unsigned int size() { return 0;		}
 	virtual bool   getOrdered() { return false; }
 	virtual bool  getWeighted() { return false; }
+	virtual unsigned int  getEdgeCnt()    { return -1; }
+	virtual unsigned int  getVertextCnt() { return -1; }
 
 
 	virtual bool add_vertex(std::istream& in) { return false; }
@@ -111,7 +113,7 @@ public:
 	void inputF(std::istream& in) override {
 		in >> this->isOrdered >> this->isWeighted >> this->isMarkedInput;
 		input(in);
-	}
+	} 
 
 	graph(std::istream& in) {
 		inputF(in);
@@ -131,10 +133,14 @@ public:
 	void outputAL(std::ostream& out) override;
 	void outputAL() override { outputAL(std::cout); }
 
-	unsigned int size() override { return this->vertexCnt;  }
+	//unsigned int size() override { return this->vertexCnt;  }
 	bool   getOrdered() override { return this->isOrdered;  }
 	bool  getWeighted() override { return this->isWeighted; }
-
+	unsigned int getEdgeCnt()    override { return this->edgeCnt;   }
+	unsigned int getVertextCnt() override { return this->vertexCnt; }
+	std::map<vertexT,
+		std::set<std::pair<vertexT,
+			     edgeMark<eMarkT>>>> getAdjacencyList() { return adjacencyList; }
 	//void scanC();
 	//void printC();
 

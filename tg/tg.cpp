@@ -18,6 +18,12 @@ struct typesOfGraphs {
 };
 */
 
+void pleaseClick() {
+	cout << "\n(нажмите любую клавишу...)";
+	_getch();
+	cout << "\n";
+}
+
 void myChoiceAssert(bool smth) {
 	if (!smth) throw exception("Введен некорректный вариант ответа");
 }
@@ -98,7 +104,7 @@ void consoleInputSpecial() {
 					cout << "t2. Вывести изолированные вершины\n";
 					cout << "t3. Построить орграф, являющийся пересечением двух заданных (!)\n";
 					cout << "t4. Найти цикломатическое число графа\n";
-					//cout << "t5. Проверить, можно ли из графа удалить какую-либо вершину так, \n    чтобы получилось дерево\n";
+					cout << "t5. Проверить, можно ли из графа удалить какую-либо вершину так, \n    чтобы получилось дерево\n";
 					cout << "!  Конец работы с введёными типами\n";
 
 					string num;
@@ -202,11 +208,19 @@ void consoleInputSpecial() {
 							}
 							else if (num[1] == '4') {
 								cout << "цикломатическое число: " << copies[gId]->getСyclomaticСomplexity() << '\n';
-
 							}
 							else if (num[1] == '5') {
-								//cout << "цикломатическое число: " << copies[gId]->getСyclomaticСomplexity() << '\n';
-
+								bool good = false;
+								for (auto& ali : copies[gId]->getAdjacencyList()) {
+									graph<V, EM> temp(copies[gId]);
+									temp.erase_vertex(ali.first);
+									if (temp.getEdgeCnt() + 1 == temp.getVertextCnt() && temp.getСyclomaticСomplexity() == 0) {
+										good = true;
+										cout << "Можно, такой вершиной является " << ali.first << '\n';
+										break;
+									}
+								}
+								if (!good) cout << "В данном графе нет таких вершин\n";
 							} else throw exception("Некорректная команда");
 						} else throw exception("Некорректная команда");
 						break;
@@ -218,23 +232,19 @@ void consoleInputSpecial() {
 						throw exception("Некорректная команда");
 						break;
 					}
-					if (OK) {
-						cout << "(нажмите любую клавишу...)";
-						_getch();
-						cout << "\n";
-					}
+					if (OK) 
+						pleaseClick();
 				}
 				catch (exception e) {
 					cout << "Что-то странное...\n";
 					cout << "Сообщение ошибки: " << e.what() << '\n';
 					cout << "попробуйте заново, что ли...\n";
+					pleaseClick();
 				}
 				catch (...) {
 					cout << "Что-то странное... попробуйте заново, что ли...\n";
+					pleaseClick();
 				}
-					cout << "\n(нажмите любую клавишу...)";
-					_getch();
-					cout << "\n";
 			}
 		}
 		catch (exception e) {
@@ -242,14 +252,13 @@ void consoleInputSpecial() {
 			cout << "Сообщение ошибки: " << e.what() << '\n';
 			cout << "попробуйте заново, что ли...\n";
 			fileOrConsole = ' ';
+			pleaseClick();
 		}
 		catch (...) {
 			cout << "Что-то странное... попробуйте заново, что ли...\n";
 			fileOrConsole = ' ';
+			pleaseClick();
 		}
-			cout << "\n(нажмите любую клавишу...)";
-			_getch();
-			cout << "\n";
 		//cout << "+--------------------------------------------------------------------+\n";
 	}
 	for (auto& ci : copies)
