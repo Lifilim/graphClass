@@ -105,6 +105,7 @@ void consoleInputSpecial() {
 					cout << "t3. Построить орграф, являющийся пересечением двух заданных (!)\n";
 					cout << "t4. Найти цикломатическое число графа\n";
 					cout << "t5. Проверить, можно ли из графа удалить какую-либо вершину так, \n    чтобы получилось дерево\n";
+					cout << "t6. Добавить MST текущего графа в конец списка копий (алгоритм Прима)\n";
 					cout << "!  Конец работы с введёными типами\n";
 
 					string num;
@@ -221,7 +222,11 @@ void consoleInputSpecial() {
 									}
 								}
 								if (!good) cout << "В данном графе нет таких вершин\n";
-							} else throw exception("Некорректная команда");
+							}
+							else if (num[1] == '6') {
+								copies.push_back(copies[gId]->MSTPrim());
+							}
+							else throw exception("Некорректная команда");
 						} else throw exception("Некорректная команда");
 						break;
 					case '!':

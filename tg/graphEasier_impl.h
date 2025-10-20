@@ -239,7 +239,7 @@ void graph<TV, TEM>::getSimDif(graph<TV, TEM>& g, bool force) { //I understand,
     this->vertexCnt = this->adjacencyList.size();
     this->edgeCnt = 0;
     for (auto& ali : this->adjacencyList) 
-        this->edgeCnt += (int) ali.second.size();
+        this->edgeCnt += ali.second.size();
 }
 
 template <typename TV, typename TEM>
@@ -266,5 +266,36 @@ int graph<TV, TEM>::getÑyclomaticÑomplexity() {
         }
     return this->edgeCnt - this->vertexCnt + compCnt;
 }
+
+
+template <typename TV, typename TEM>
+graph<TV, TEM>* graph<TV, TEM>::MSTPrim() {
+    graph<TV, TEM>* mst = new graph<TV, TEM>(isOrdered, isWeighted, isMarkedInput);
+    for (auto& ali : adjacencyList)
+        if (mst->adjacencyList.count(ali.first) == 0) {
+            mst->add_vertex(ali.first);
+
+            std::set<std::pair<edgeMark<TEM>, std::pair<TV, TV>>> edgesAround;
+            for (auto& alij : ali.second)
+                edgesAround.insert({ alij.second, {ali.first, alij.first} });
+
+            while (!edgesAround.empty()) {
+                while (!edgesAround.empty() && mst->adjacencyList.count(edgesAround.begin()->second.second))
+                    edgesAround.erase(edgesAround.begin());
+                if (edgesAround.empty()) break;
+
+                mst->add_vertex(edgesAround.begin()->second.second);
+                mst->add_edge(edge<TV, TEM>{ edgesAround.begin()->second.first, edgesAround.begin()->second.second, edgesAround.begin()->first});
+
+                TV vert = edgesAround.begin()->second.second;
+                edgesAround.erase(edgesAround.begin());
+                for (auto alij : adjacencyList[vert])
+                    if (mst->adjacencyList.count(alij.first) == 0)
+                        edgesAround.insert({ alij.second, {vert, alij.first} });
+            }
+        }
+    return mst;
+}
+
 
 #endif //GRAPH_IMPL_H

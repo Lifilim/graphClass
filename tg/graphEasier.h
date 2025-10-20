@@ -62,6 +62,11 @@ public:
 		if (isMarked)   in >> mark;
 		WM = int(isWeighted) * 2 + int(isMarked);
 	}
+	edgeMark(int weight_, eMarkT mark_, bool isWeighted, bool isMarked) {
+		if (isWeighted) this->weight = weight_;
+		if (isMarked)   this->mark = mark_;
+		WM = int(isWeighted) * 2 + int(isMarked);
+	}
 	char   getWMFlag() const { return this->WM;     }
 	int    getWeight() const { return this->weight; }
 	eMarkT getMark()   const { return this->mark;   }
@@ -83,6 +88,11 @@ struct edge {
 	edge(std::istream& in, bool isWeighted, bool isMarked) {
 		in >> this->from >> this->to;
 		marks = edgeMark<eMarkT>(in, isWeighted, isMarked);
+	}
+	edge(vertexT from_, vertexT to_, edgeMark<eMarkT> marks_) {
+		this->from = from_;
+		this->to = to_;
+		this->marks = marks_;
 	}
 	~edge() = default;
 };
@@ -161,6 +171,7 @@ public:
 	void getSimDif(graph<vertexT, eMarkT>& g, bool force = false);
 	void getSimDif(graph<vertexT, eMarkT>* g, bool force = false) { getSimDif(*g, force); }
 	int get—yclomatic—omplexity();
+	graph<vertexT, eMarkT>* MSTPrim();
 
 	~graph() override = default;
 };
