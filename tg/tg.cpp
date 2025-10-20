@@ -96,7 +96,9 @@ void consoleInputSpecial() {
 					cout << "9. Очистить граф и начать его создание с начала (!)\n";
 					cout << "t1. Вывести подвешенные вершины\n";
 					cout << "t2. Вывести изолированные вершины\n";
-					cout << "t3. Построить орграф, являющийся пересечением двух заданных\n";
+					cout << "t3. Построить орграф, являющийся пересечением двух заданных (!)\n";
+					cout << "t4. Найти цикломатическое число графа\n";
+					//cout << "t5. Проверить, можно ли из графа удалить какую-либо вершину так, \n    чтобы получилось дерево\n";
 					cout << "!  Конец работы с введёными типами\n";
 
 					string num;
@@ -197,6 +199,14 @@ void consoleInputSpecial() {
 								myChoiceAssert(0 <= copyId && copyId < copies.size()); //cout << '\n';
 								copies[gId]->getSimDif(copies[copyId]);
 								cout << "Вы получили симметрическую разность, замечательно!\n";
+							}
+							else if (num[1] == '4') {
+								cout << "цикломатическое число: " << copies[gId]->getСyclomaticСomplexity() << '\n';
+
+							}
+							else if (num[1] == '5') {
+								//cout << "цикломатическое число: " << copies[gId]->getСyclomaticСomplexity() << '\n';
+
 							} else throw exception("Некорректная команда");
 						} else throw exception("Некорректная команда");
 						break;
@@ -222,6 +232,9 @@ void consoleInputSpecial() {
 				catch (...) {
 					cout << "Что-то странное... попробуйте заново, что ли...\n";
 				}
+					cout << "\n(нажмите любую клавишу...)";
+					_getch();
+					cout << "\n";
 			}
 		}
 		catch (exception e) {
@@ -234,6 +247,9 @@ void consoleInputSpecial() {
 			cout << "Что-то странное... попробуйте заново, что ли...\n";
 			fileOrConsole = ' ';
 		}
+			cout << "\n(нажмите любую клавишу...)";
+			_getch();
+			cout << "\n";
 		//cout << "+--------------------------------------------------------------------+\n";
 	}
 	for (auto& ci : copies)

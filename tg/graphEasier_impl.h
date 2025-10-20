@@ -26,13 +26,13 @@ graph<TV, TEM>::graph(const graph& g) {
 
 template <typename TV, typename TEM>
 void graph<TV, TEM>::input(std::istream& in) {
+    this->adjacencyList.clear();
+    this->degIn.clear();
+
     unsigned int vCnt, eCnt;
     in >> vCnt >> eCnt;
     for (unsigned int i = 0; i < vCnt; ++i) add_vertex(in);
     for (unsigned int i = 0; i < eCnt; ++i) add_edge(in);
-    //in >> this->root;
-    //if (!this->adjacencyList.count(this->root)) 
-    //    throw std::exception("Нет такой вершины для корня"); //("No such vertex for root");
 }
 
 template <typename TV, typename TEM>
@@ -60,7 +60,8 @@ void graph<TV, TEM>::output(std::ostream& out) {
 template <typename TV, typename TEM>
 void graph<TV, TEM>::inputAL(std::istream& in) {
     this->adjacencyList.clear();
-    in >> this->isOrdered >> this->isWeighted >> this->isMarkedInput;
+    this->degIn.clear(); //!!!!!!!!!!
+
     in >> this->vertexCnt;
     this->edgeCnt = 0;
     for (unsigned int i = 0; i < this->vertexCnt; ++i) {
@@ -215,10 +216,10 @@ void graph<TV, TEM>::getSimDif(graph<TV, TEM>& g, bool force) { //I understand,
         throw std::exception("Для симметрической разности графы должны быть ориентированы одинаково"); //("No such vertex");
     else if (force) this->isOrdered = this->isOrdered || g.isOrdered;
 
-    auto ital = adjacencyList.begin();
-    while (ital != adjacencyList.end()) {
+    auto ital = this->adjacencyList.begin();
+    while (ital != this->adjacencyList.end()) {
         if (g.adjacencyList.count(ital->first) == 0) {
-            ital = adjacencyList.erase(ital);
+            ital = this->adjacencyList.erase(ital);
             continue;
         }
         auto& gal = g.adjacencyList[ital->first];
@@ -229,9 +230,35 @@ void graph<TV, TEM>::getSimDif(graph<TV, TEM>& g, bool force) { //I understand,
             else ++its;
         ++ital;
     }
-    vertexCnt = adjacencyList.size();
-    edgeCnt = 0;
-    for (auto& ali : adjacencyList) edgeCnt += ali.second.size();
+    this->vertexCnt = this->adjacencyList.size();
+    this->edgeCnt = 0;
+    for (auto& ali : this->adjacencyList) 
+        this->edgeCnt += ali.second.size();
+}
+
+template <typename TV, typename TEM>
+int graph<TV, TEM>::getСyclomaticСomplexity() {
+    if (this->isOrdered)
+        throw std::exception("Метод реализован только для неориентированных графов");
+    std::map<TV, char> used;
+    int compCnt = 0;
+    for (auto& ali : this->adjacencyList)
+        if (!used[ali.first]) {
+            ++compCnt;
+            std::vector<TV> st;
+            st.push_back(ali.first);
+            used[st.back()] = 1;
+            while (!st.empty()) {
+                TV v = st.back();
+                st.pop_back();
+                for (auto& u : this->adjacencyList[v])
+                    if (!used[u.first]) {
+                        used[u.first] = 1;
+                        st.push_back(u.first);
+                    }
+            }
+        }
+    return this->edgeCnt - this->vertexCnt + compCnt;
 }
 
 #endif //GRAPH_IMPL_H

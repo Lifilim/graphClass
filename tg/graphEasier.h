@@ -108,15 +108,14 @@ public:
 	void inputAL(std::istream& in) override;
 	void inputAL() override { input(std::cin); }
 
-	graph(std::istream& in) {
-		in >> this->isOrdered >> this->isWeighted >> this->isMarkedInput;
-		input(in);
-	}
 	void inputF(std::istream& in) override {
 		in >> this->isOrdered >> this->isWeighted >> this->isMarkedInput;
 		input(in);
 	}
 
+	graph(std::istream& in) {
+		inputF(in);
+	}
 	graph(bool isOrdered, bool isWeighted, bool isMarkedInput = false) {
 		this->isOrdered = isOrdered;
 		this->isWeighted = isWeighted;
@@ -155,7 +154,7 @@ public:
 	std::vector<vertexT> getVTotalDegN(int deg);
 	void getSimDif(graph<vertexT, eMarkT>& g, bool force = false);
 	void getSimDif(graph<vertexT, eMarkT>* g, bool force = false) { getSimDif(*g, force); }
-	
+	int get—yclomatic—omplexity();
 
 	~graph() override = default;
 };
