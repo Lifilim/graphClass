@@ -190,6 +190,13 @@ void consoleInputSpecial() {
 							} else if (num[1] == '2') {
 								for (auto gi : copies[gId]->getVTotalDegN(0)) cout << gi << ' ';
 								cout << '\n';
+							}
+							else if (num[1] == '3') {
+								int copyId;
+								getChoice<int, int>("Укажите номер копии для получения симметрической разности \nразности в текущий граф: ", {}, copyId);
+								myChoiceAssert(0 <= copyId && copyId < copies.size()); //cout << '\n';
+								copies[gId]->getSimDif(copies[copyId]);
+								cout << "Вы получили симметрическую разность, замечательно!\n";
 							} else throw exception("Некорректная команда");
 						} else throw exception("Некорректная команда");
 						break;

@@ -4,6 +4,7 @@
 #define GRAPH_H
 
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <map>
 #include <set>
@@ -152,7 +153,8 @@ public:
 
 
 	std::vector<vertexT> getVTotalDegN(int deg);
-	void getSimDif(graph<vertexT, eMarkT>& g);
+	void getSimDif(graph<vertexT, eMarkT>& g, bool force = false);
+	void getSimDif(graph<vertexT, eMarkT>* g, bool force = false) { getSimDif(*g, force); }
 	
 
 	~graph() override = default;

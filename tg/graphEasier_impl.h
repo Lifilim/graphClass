@@ -209,5 +209,29 @@ std::vector<TV> graph<TV, TEM>::getVTotalDegN(int deg) {
     return res;
 }
 
+template <typename TV, typename TEM>
+void graph<TV, TEM>::getSimDif(graph<TV, TEM>& g, bool force) { //I understand, 
+    if (this->isOrdered != g.isOrdered || force)
+        throw std::exception("Для симметрической разности графы должны быть ориентированы одинаково"); //("No such vertex");
+    else if (force) this->isOrdered = this->isOrdered || g.isOrdered;
+
+    auto ital = adjacencyList.begin();
+    while (ital != adjacencyList.end()) {
+        if (g.adjacencyList.count(ital->first) == 0) {
+            ital = adjacencyList.erase(ital);
+            continue;
+        }
+        auto& gal = g.adjacencyList[ital->first];
+        auto its = ital->second.begin();
+        while (its != ital->second.end())
+            if (gal.find(*its) == gal.end())
+                its = ital->second.erase(its);
+            else ++its;
+        ++ital;
+    }
+    vertexCnt = adjacencyList.size();
+    edgeCnt = 0;
+    for (auto& ali : adjacencyList) edgeCnt += ali.second.size();
+}
 
 #endif //GRAPH_IMPL_H
