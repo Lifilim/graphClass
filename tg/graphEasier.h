@@ -8,6 +8,11 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <queue>
+
+
+using weightT = int;
+weightT INF = 2e9;
 
 
 class graphBase {
@@ -52,7 +57,7 @@ template <typename eMarkT>
 struct edgeMark {
 private: 
 	char WM = 0;
-	int weight;
+	weightT weight;
 	eMarkT mark;
 
 public:
@@ -62,14 +67,14 @@ public:
 		if (isMarked)   in >> mark;
 		WM = int(isWeighted) * 2 + int(isMarked);
 	}
-	edgeMark(int weight_, eMarkT mark_, bool isWeighted, bool isMarked) {
+	edgeMark(weightT weight_, eMarkT mark_, bool isWeighted, bool isMarked) {
 		if (isWeighted) this->weight = weight_;
 		if (isMarked)   this->mark = mark_;
 		WM = int(isWeighted) * 2 + int(isMarked);
 	}
-	char   getWMFlag() const { return this->WM;     }
-	int    getWeight() const { return this->weight; }
-	eMarkT getMark()   const { return this->mark;   }
+	char    getWMFlag() const { return this->WM;     }
+	weightT getWeight() const { return this->weight; }
+	eMarkT  getMark()   const { return this->mark;   }
 
 	void output(std::ostream& out) const {
 		if (WM & 2)	 out << weight;
@@ -111,7 +116,7 @@ private:
 	std::map<vertexT,
 		std::set<std::pair<vertexT,
 				 edgeMark<eMarkT>>>> adjacencyList;
-	std::map<vertexT, int> degIn;
+	std::map<vertexT, unsigned int> degIn;
 
 public:
 
@@ -145,12 +150,14 @@ public:
 
 	//unsigned int size() override { return this->vertexCnt;  }
 	bool   getOrdered() override { return this->isOrdered;  }
-	bool  getWeighted() override { return this->isWeighted; }
+	bool   getWeighted() override { return this->isWeighted; }
 	unsigned int getEdgeCnt()    override { return this->edgeCnt;   }
 	unsigned int getVertextCnt() override { return this->vertexCnt; }
 	std::map<vertexT,
 		std::set<std::pair<vertexT,
 			     edgeMark<eMarkT>>>> getAdjacencyList() { return adjacencyList; }
+
+	virtual bool isVertex(vertexT v) { return adjacencyList.find(v) != adjacencyList.end(); }
 	//void scanC();
 	//void printC();
 
@@ -172,6 +179,8 @@ public:
 	void getSimDif(graph<vertexT, eMarkT>* g, bool force = false) { getSimDif(*g, force); }
 	int getСyclomaticСomplexity();
 	graph<vertexT, eMarkT>* MSTPrim();
+	std::map<vertexT, std::pair<weightT, vertexT>> algDijkstra(vertexT u);  // список весов и предков у достижимых вершин
+	std::map<vertexT, std::map<vertexT, weightT>> algFloydWarshall();  // res[u][v] = вес из u в v
 
 	~graph() override = default;
 };

@@ -218,7 +218,7 @@ std::vector<TV> graph<TV, TEM>::getVTotalDegN(int deg) {
 
 template <typename TV, typename TEM>
 void graph<TV, TEM>::getSimDif(graph<TV, TEM>& g, bool force) { //I understand, 
-    if (this->isOrdered != g.isOrdered || force)
+    if (this->isOrdered != g.isOrdered && !force)
         throw std::exception("Äëÿ ñèììåòðè÷åñêîé ðàçíîñòè ãðàôû äîëæíû áûòü îðèåíòèðîâàíû îäèíàêîâî"); //("No such vertex");
     else if (force) this->isOrdered = this->isOrdered || g.isOrdered;
 
@@ -264,7 +264,7 @@ int graph<TV, TEM>::getÑyclomaticÑomplexity() {
                     }
             }
         }
-    return this->edgeCnt - this->vertexCnt + compCnt;
+    return compCnt + this->edgeCnt - this->vertexCnt;
 }
 
 
@@ -295,6 +295,50 @@ graph<TV, TEM>* graph<TV, TEM>::MSTPrim() {
             }
         }
     return mst;
+}
+
+template <typename TV, typename TEM>
+std::map<TV, std::pair<weightT, TV>> graph<TV, TEM>::algDijkstra(TV u) {
+    std::map<TV, std::pair<weightT, TV>> res;
+    std::priority_queue<std::pair<weightT, TV>> pq;
+    res[u] = { 0, u };
+    pq.push({ 0, u });
+    while (!pq.empty()) {
+        TV v = pq.top().second;
+        weightT d_v = pq.top().first;
+        pq.pop();
+        if (d_v != res[v].first) continue;
+
+        for (auto edge : adjacencyList[v]) {
+            TV to = edge.first;
+            weightT w = edge.second.getWeight();
+            if (res.count(to) == 0 || res[v].first + w < res[to].first) {
+                res[to] = { res[v].first + w, v };
+                pq.push({ res[to].first, to });
+            }
+        }
+    }
+    return res;
+}
+
+template <typename TV, typename TEM>
+std::map<TV, std::map<TV, weightT>> graph<TV, TEM>::algFloydWarshall() {
+    std::map<TV, std::map<TV, weightT>> res;
+    for (auto v : adjacencyList)
+        for (auto u : adjacencyList)
+            res[v.first][u.first] = INF;
+    for (auto v : adjacencyList)
+        for (auto vu : v.second)
+            res[v.first][vu.first] = vu.second.getWeight();
+    for (auto v : adjacencyList)
+        res[v.first][v.first] = 0;
+    for (auto w : adjacencyList)
+        for (auto v : adjacencyList)
+            for (auto u : adjacencyList)
+                if (res[v.first][w.first] < INF && res[w.first][u.first] < INF)
+                if (res[v.first][u.first] > res[v.first][w.first] + res[w.first][u.first])
+                    res[v.first][u.first] = res[v.first][w.first] + res[w.first][u.first];
+    return res;
 }
 
 

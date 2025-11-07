@@ -100,12 +100,15 @@ void consoleInputSpecial() {
 					cout << "7.0) Вывести список смежности в консоль\n";
 					cout << "8. Считать список смежности из файла (!)\n";
 					cout << "9. Очистить граф и начать его создание с начала (!)\n";
-					cout << "t1. Вывести подвешенные вершины\n";
-					cout << "t2. Вывести изолированные вершины\n";
-					cout << "t3. Построить орграф, являющийся пересечением двух заданных (!)\n";
-					cout << "t4. Найти цикломатическое число графа\n";
-					cout << "t5. Проверить, можно ли из графа удалить какую-либо вершину так, \n    чтобы получилось дерево\n";
-					cout << "t6. Добавить MST текущего графа в конец списка копий (алгоритм Прима)\n";
+					cout << "t2. Вывести подвешенные вершины\n";
+					cout << "t3. Вывести изолированные вершины\n";
+					cout << "t4. Построить орграф, являющийся пересечением двух заданных (!)\n";
+					cout << "t5. Найти цикломатическое число графа\n";
+					cout << "t6. Проверить, можно ли из графа удалить какую-либо вершину так, \n    чтобы получилось дерево\n";
+					cout << "t7. Добавить MST текущего графа в конец списка копий (алгоритм Прима)\n";
+					cout << "t8. Вывести кратчайшие пути из вершины u во все остальные вершины (Дейкстра) (в14)\n";
+					cout << "t9. Найти радиус графа — минимальный из эксцентриситетов его вершин.(в10)\n";
+					cout << "t10. Найти все такие пары вершин, что между ними существует путь сколько угодно малой длины. (в19)\n";
 					cout << "!  Конец работы с введёными типами\n";
 
 					string num;
@@ -193,24 +196,24 @@ void consoleInputSpecial() {
 						break;
 					case 't':
 						if (num.size() == 2) {
-							if (num[1] == '1') {
+							if (num[1] == '2') {
 								for (auto gi : copies[gId]->getVTotalDegN(1)) cout << gi << ' ';
 								cout << '\n';
-							} else if (num[1] == '2') {
+							} else if (num[1] == '3') {
 								for (auto gi : copies[gId]->getVTotalDegN(0)) cout << gi << ' ';
 								cout << '\n';
 							}
-							else if (num[1] == '3') {
+							else if (num[1] == '4') {
 								int copyId;
 								getChoice<int, int>("Укажите номер копии для получения симметрической разности \nразности в текущий граф: ", {}, copyId);
 								myChoiceAssert(0 <= copyId && copyId < copies.size()); //cout << '\n';
 								copies[gId]->getSimDif(copies[copyId]);
 								cout << "Вы получили симметрическую разность, замечательно!\n";
 							}
-							else if (num[1] == '4') {
+							else if (num[1] == '5') {
 								cout << "цикломатическое число: " << copies[gId]->getСyclomaticСomplexity() << '\n';
 							}
-							else if (num[1] == '5') {
+							else if (num[1] == '6') {
 								bool good = false;
 								for (auto& ali : copies[gId]->getAdjacencyList()) {
 									graph<V, EM> temp(copies[gId]);
@@ -223,8 +226,30 @@ void consoleInputSpecial() {
 								}
 								if (!good) cout << "В данном графе нет таких вершин\n";
 							}
-							else if (num[1] == '6') {
+							else if (num[1] == '7') {
 								copies.push_back(copies[gId]->MSTPrim());
+							}
+							else if (num[1] == '8') {
+								V vert;
+								getChoice<V, V>("Введите вершину u: ", {}, vert);
+								myChoiceAssert(copies[gId]->isVertex(vert));
+
+								cout << "Вершина-куда | вес | предок\n";
+								auto resD = (copies[gId]->algDijkstra(vert));
+								for (auto di: resD) {
+									cout << di.first << " | " << di.second.first << " | " << di.second.second << '\n';
+								}
+							}
+							else if (num[1] == '9') {
+								auto dists = (copies[gId]->algFloydWarshall());
+								weightT ans = INF;
+								for (auto v : dists) {
+									weightT ansV = -INF;
+									for (auto u : v.second)
+										ansV = max(ansV, u.second);
+									ans = min(ans, ansV);
+								}
+								cout << "Эксцентриситет графа: " << ans << '\n';
 							}
 							else throw exception("Некорректная команда");
 						} else throw exception("Некорректная команда");
