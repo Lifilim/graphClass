@@ -59,6 +59,7 @@ private:
 	char WM = 0;
 	weightT weight;
 	eMarkT mark;
+	weightT exp = 0;
 
 public:
 	edgeMark() {}
@@ -181,6 +182,7 @@ public:
 	graph<vertexT, eMarkT>* MSTPrim();
 	std::map<vertexT, std::pair<weightT, vertexT>> algDijkstra(vertexT u);  // список весов и предков у достижимых вершин
 	std::map<vertexT, std::map<vertexT, weightT>> algFloydWarshall();  // res[u][v] = вес из u в v
+	std::pair<std::map<vertexT, std::pair<weightT, vertexT>>, std::pair<vertexT, bool>> algFordBellman(vertexT s); // возвращает список расстояний и пару {relax на n, был/не был}
 
 	~graph() override = default;
 };

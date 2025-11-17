@@ -252,6 +252,49 @@ void consoleInputSpecial() {
 								cout << "Эксцентриситет графа: " << ans << '\n';
 							}
 							else throw exception("Некорректная команда");
+						}
+						else if (num.size() == 3) {
+							if (num[1] == '1' && num[2] == '0') {
+								std::set<pair<V, V>> res;
+								int n = copies[gId]->getVertextCnt();
+								bool isOrdered = copies[gId]->getOrdered();
+								auto adj = copies[gId]->getAdjacencyList();
+								for (auto w : adj) {
+									auto lastDists = copies[gId]->algFordBellman(w.first);
+									auto dists = lastDists.first;
+									auto last = lastDists.second;
+
+									if (last.second) {
+										V y = last.first;
+										for (int i = 0; i < n; ++i)
+											y = dists[y].second;
+
+										queue<V> q;
+										for (V cur = y; cur != y || q.size() < 1; cur = dists[cur].second) {
+											q.push(cur);
+										}
+										std::map<V, bool> used;
+										while (!q.empty()) {
+											V top = q.front();
+											q.pop();
+											used[top] = true;
+											if (top != w.first) {
+												if (isOrdered)
+													res.insert({ w.first, top });
+												else
+													res.insert({ std::min(w.first, top), std::max(w.first, top) });
+											}
+											for (auto u : adj[top])
+												if (!used[u.first])
+													q.push(u.first);
+										}
+									}
+								}
+								cout << "Все пары вершин из условия:\nначало пути | конец пути\n";
+								for (auto resi : res)
+									cout << resi.first << ' ' << resi.second << '\n';
+							}
+							else throw exception("Некорректная команда");
 						} else throw exception("Некорректная команда");
 						break;
 					case '!':

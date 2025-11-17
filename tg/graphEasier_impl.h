@@ -264,7 +264,7 @@ int graph<TV, TEM>::getÑyclomaticÑomplexity() {
                     }
             }
         }
-    return compCnt + this->edgeCnt - this->vertexCnt;
+        return compCnt + this->edgeCnt - this->vertexCnt;
 }
 
 
@@ -336,10 +336,64 @@ std::map<TV, std::map<TV, weightT>> graph<TV, TEM>::algFloydWarshall() {
         for (auto v : adjacencyList)
             for (auto u : adjacencyList)
                 if (res[v.first][w.first] < INF && res[w.first][u.first] < INF)
-                if (res[v.first][u.first] > res[v.first][w.first] + res[w.first][u.first])
-                    res[v.first][u.first] = res[v.first][w.first] + res[w.first][u.first];
+                    if (res[v.first][u.first] > res[v.first][w.first] + res[w.first][u.first])
+                        res[v.first][u.first] = res[v.first][w.first] + res[w.first][u.first];
     return res;
 }
 
+template <typename TV, typename TEM>
+std::pair<std::map<TV, std::pair<weightT, TV>>, std::pair<TV, bool>> graph<TV, TEM>::algFordBellman(TV s) {
+    std::map<TV, std::pair<weightT, TV>> d;
+    d[s] = { 0, s };
+    std::pair<TV, bool> last;
+    for (int i = 0; i < vertexCnt; ++i) {
+        last.second = false;
+        for (auto v : adjacencyList)
+            if (d.count(v.first))
+                for (auto u : v.second)
+                    if (d.count(u.first) == 0
+                        || d[u.first].first > d[v.first].first + u.second.getWeight()) {
+                            d[u.first] = { std::max(-INF, d[v.first].first + u.second.getWeight())
+                                         , v.first };
+                            last = { u.first, true };
+                         }
+    }
+    return { d, last };
+}
 
+/*
+template <typename TV, typename TEM>
+std::pair<std::map<TV, std::pair<weightT, TV>>, std::pair<TV, bool>> graph<TV, TEM>::maxFlow(TV s, TV t) {
+    std::vector<edge<TV, weightT>> edges;
+    //std::vector<weightT> edgesF;
+    std::map<TV, std::vector<unsigned int>> g_;
+    std::map<TV, char> used;
+
+    for (auto v : getAdjacencyList)
+        for (auto u : v.second) {
+            g_[v.first].push_back(edges.size());
+            edges.push_back
+              ( edge ( v.first, u.first
+                     , edgeMark<weightT> (u.second.getWeight(), 0, true, true) );
+            
+            g_[u.first].push_back(edges.size());
+            edges.push_back
+              ( edge ( u.first, v.first
+                     , edgeMark<weightT> (0, 0, true, true) );
+        }
+
+
+    weightT dfs(TV v, weightT f) {
+        if (used[v]) return 0;
+        used[v] = 1;
+        if (v == t) return f;
+        for (auto e : g_[v]) {
+            weightT r = edges[e].marks.getWeight() - edges[e].marks.getMark();
+            if (abs(r) < eps) continue;
+            weightT p = dfs(
+        }
+    }
+
+}
+*/
 #endif //GRAPH_IMPL_H
