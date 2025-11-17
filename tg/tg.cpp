@@ -109,6 +109,7 @@ void consoleInputSpecial() {
 					cout << "t8. Вывести кратчайшие пути из вершины u во все остальные вершины (Дейкстра) (в14)\n";
 					cout << "t9. Найти радиус графа — минимальный из эксцентриситетов его вершин.(в10)\n";
 					cout << "t10. Найти все такие пары вершин, что между ними существует путь сколько угодно малой длины. (в19)\n";
+					cout << "t11. Найти максимальный поток\n";
 					cout << "!  Конец работы с введёными типами\n";
 
 					string num;
@@ -293,6 +294,21 @@ void consoleInputSpecial() {
 								cout << "Все пары вершин из условия:\nначало пути | конец пути\n";
 								for (auto resi : res)
 									cout << resi.first << ' ' << resi.second << '\n';
+							}
+							else if (num[1] == '1' && num[2] == '1') {
+								V s, t;
+								getChoice<V, V>("Введите вершину исток: ", {}, s);
+								myChoiceAssert(copies[gId]->isVertex(s));
+								getChoice<V, V>("Введите вершину  сток: ", {}, t);
+								myChoiceAssert(copies[gId]->isVertex(t));
+
+								auto ans = copies[gId]->maxFlow(s, t);
+								std::cout << "Максимальный поток из " << s << " в " << t << ": " << ans.first << '\n';
+
+								string output;
+								getChoice<string, string>("Вывести сеть? ", {"y", "n"}, output);
+								myChoiceAssert(output == "y" || output == "n");
+								if (output == "y") ans.second->outputAL();
 							}
 							else throw exception("Некорректная команда");
 						} else throw exception("Некорректная команда");

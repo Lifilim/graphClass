@@ -13,6 +13,7 @@
 
 using weightT = int;
 weightT INF = 2e9;
+weightT eps = 1;
 
 
 class graphBase {
@@ -58,8 +59,8 @@ struct edgeMark {
 private: 
 	char WM = 0;
 	weightT weight;
+public:
 	eMarkT mark;
-	weightT exp = 0;
 
 public:
 	edgeMark() {}
@@ -183,6 +184,7 @@ public:
 	std::map<vertexT, std::pair<weightT, vertexT>> algDijkstra(vertexT u);  // список весов и предков у достижимых вершин
 	std::map<vertexT, std::map<vertexT, weightT>> algFloydWarshall();  // res[u][v] = вес из u в v
 	std::pair<std::map<vertexT, std::pair<weightT, vertexT>>, std::pair<vertexT, bool>> algFordBellman(vertexT s); // возвращает список расстояний и пару {relax на n, был/не был}
+	std::pair<weightT, graph<vertexT, weightT>*> maxFlow(vertexT s, vertexT t);
 
 	~graph() override = default;
 };

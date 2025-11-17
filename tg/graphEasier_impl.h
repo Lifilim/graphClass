@@ -361,39 +361,64 @@ std::pair<std::map<TV, std::pair<weightT, TV>>, std::pair<TV, bool>> graph<TV, T
     return { d, last };
 }
 
-/*
 template <typename TV, typename TEM>
-std::pair<std::map<TV, std::pair<weightT, TV>>, std::pair<TV, bool>> graph<TV, TEM>::maxFlow(TV s, TV t) {
+weightT maxFlow_dfs(TV v, weightT f, TV t, std::map<TV, std::vector<unsigned int>>&g_, std::map<TV, char>& used, std::vector<edge<TV, weightT>> &edges) {
+    if (used[v]) return 0;
+    used[v] = 1;
+    if (v == t) return f;
+    for (auto e : g_[v]) {
+        weightT r = edges[e].marks.getWeight() - edges[e].marks.getMark();
+        if (abs(r) < eps) continue;
+        weightT p = maxFlow_dfs<TV, TEM>(edges[e].to, std::min(f, r), t, g_, used, edges);
+        if (p != 0) {
+            edges[e].marks.mark += p;
+            edges[e ^ 1].marks.mark -= p;
+            return p;
+        }
+    }
+    return 0;
+}
+
+template <typename TV, typename TEM>
+std::pair<weightT, graph<TV, weightT>*> graph<TV, TEM>::maxFlow(TV s, TV t) {
+    if (!this->isOrdered)
+        throw std::exception("Метод реализован только для ориентированных графов");
+
     std::vector<edge<TV, weightT>> edges;
-    //std::vector<weightT> edgesF;
     std::map<TV, std::vector<unsigned int>> g_;
     std::map<TV, char> used;
 
-    for (auto v : getAdjacencyList)
+    for (auto v : adjacencyList)
         for (auto u : v.second) {
             g_[v.first].push_back(edges.size());
             edges.push_back
-              ( edge ( v.first, u.first
-                     , edgeMark<weightT> (u.second.getWeight(), 0, true, true) );
+              ( edge<TV, weightT> ( v.first, u.first
+                                  , edgeMark<weightT> (u.second.getWeight(), 0, true, true) ) );
             
             g_[u.first].push_back(edges.size());
             edges.push_back
-              ( edge ( u.first, v.first
-                     , edgeMark<weightT> (0, 0, true, true) );
+              ( edge<TV, weightT> ( u.first, v.first
+                                  , edgeMark<weightT> (0, 0, true, true) ) );
         }
 
 
-    weightT dfs(TV v, weightT f) {
-        if (used[v]) return 0;
-        used[v] = 1;
-        if (v == t) return f;
-        for (auto e : g_[v]) {
-            weightT r = edges[e].marks.getWeight() - edges[e].marks.getMark();
-            if (abs(r) < eps) continue;
-            weightT p = dfs(
-        }
+    weightT ans = 0;
+    while (true) {
+        used.clear();
+        int p = maxFlow_dfs<TV, TEM> (s, INF, t, g_, used, edges);
+        if (!p) break;
+        ans += p;
     }
+    graph<TV, weightT>* resG = new graph<TV, weightT>( this->isOrdered
+                                                     , this->isWeighted
+                                                     , true );
+    for (auto v : adjacencyList)
+        resG->add_vertex(v.first);
+    for (int i = 0; i < edges.size(); i += 2)
+        resG->add_edge(edges[i]);
 
+    return { ans, resG };
 }
+/*
 */
 #endif //GRAPH_IMPL_H
